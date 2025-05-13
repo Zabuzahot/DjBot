@@ -12,6 +12,15 @@ const TOKEN = process.env.BOT_TOKEN;
 process.env.FFMPEG_PATH = ffmpeg;
 console.log('FFMPEG_PATH:', ffmpeg);
 
+const YT_COOKIE = process.env.YT_COOKIE;
+if (YT_COOKIE) {
+    playdl.setToken({
+        youtube: {
+            cookie: YT_COOKIE
+        }
+    });
+}
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
