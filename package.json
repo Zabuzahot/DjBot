@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "music-bot.js",
   "scripts": {
-    "start": "node music-bot.js"
+    "start": "node music-bot.js",
+    "postinstall": "npm install @distube/ytdl-core@latest"
   },
   "type": "commonjs",
   "dependencies": {
