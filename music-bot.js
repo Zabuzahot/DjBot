@@ -13,6 +13,15 @@ const YT_COOKIE = process.env.YT_COOKIE;
 process.env.FFMPEG_PATH = ffmpeg;
 console.log('FFMPEG_PATH:', ffmpeg);
 
+// Для play-dl обязательно явно установить куки (иначе поиск и info не работают!)
+if (YT_COOKIE) {
+    playdl.setToken({
+        youtube: {
+            cookie: YT_COOKIE
+        }
+    });
+}
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -93,7 +102,12 @@ async function playNext(guildId) {
                 };
             }
             stream = ytdl(current.url, ytdlOptions);
-            info = { video_details: { title: current.title, thumbnails: [{ url: '' }], durationInSec: 0, channel: { name: '' } } };
+            // Получаем info через play-dl, чтобы использовать куки (иначе будет "Sign in to confirm you’re not a bot")
+            try {
+                info = await playdl.video_basic_info(current.url);
+            } catch (e) {
+                info = { video_details: { title: current.title, thumbnails: [{ url: '' }], durationInSec: 0, channel: { name: '' } } };
+            }
         } else if (current.url.endsWith('.mp3')) {
             stream = await new Promise((resolve) => {
                 get(current.url, (res) => resolve(res));
