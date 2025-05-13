@@ -100,6 +100,19 @@ async function playNext(guildId) {
                 if (textChannel) textChannel.send('Ошибка: не удалось получить поток через play-dl.');
                 return;
             }
+            // --- Fallback на ytdl-core, если play-dl не даёт readable-стрим (например, нет звука) ---
+            if (!stream.readable) {
+                try {
+                    stream = ytdl(current.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 });
+                    // info остаётся прежним
+                    if (!stream.readable) throw new Error('ytdl-core тоже не дал readable-стрим');
+                    console.warn('Использован fallback на ytdl-core!');
+                } catch (e) {
+                    console.error('⛔ Fallback ytdl-core не сработал:', e);
+                    if (textChannel) textChannel.send('Ошибка: не удалось получить readable-стрим ни через play-dl, ни через ytdl-core.');
+                    return;
+                }
+            }
         } else if (current.url.endsWith('.mp3')) {
             stream = await new Promise((resolve) => {
                 get(current.url, (res) => resolve(res));
