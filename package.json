@@ -7,7 +7,7 @@
   },
   "type": "commonjs",
   "dependencies": {
-    "@discordjs/opus": "^0.10.0",
+    "opusscript": "^0.0.8",
     "@discordjs/voice": "^0.18.0",
     "@distube/ytdl-core": "^4.13.3",
     "discord.js": "^14.19.3",
