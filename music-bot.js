@@ -90,10 +90,16 @@ async function playNext(guildId) {
             throw new Error('Некорректная ссылка для проигрывания: ' + current.url);
         }
 
-        // YouTube и YouTube Music через ytdl-core
+        // YouTube и YouTube Music через play-dl (а не ytdl-core!)
         if (/^https?:\/\/(www\.)?(youtube\.com|music\.youtube\.com)\/watch\?v=/.test(current.url) || /^https?:\/\/youtu\.be\//.test(current.url)) {
-            stream = ytdl(current.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }); // 32MB
-            info = { video_details: { title: current.title, thumbnails: [{ url: '' }], durationInSec: 0, channel: { name: '' } } };
+            let playdlStream = await playdl.stream(current.url, { quality: 2, highWaterMark: 1 << 25 });
+            info = await playdl.video_basic_info(current.url);
+            stream = playdlStream?.stream ?? playdlStream;
+            if (!stream) {
+                console.error('⛔ Не удалось получить поток через play-dl');
+                if (textChannel) textChannel.send('Ошибка: не удалось получить поток через play-dl.');
+                return;
+            }
         } else if (current.url.endsWith('.mp3')) {
             stream = await new Promise((resolve) => {
                 get(current.url, (res) => resolve(res));
